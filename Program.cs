@@ -6,7 +6,6 @@ namespace MiniBankApp
 {
     class Program
     {
-        // Файлы для сохранения данных, чтобы всё оставалось после перезапуска
         private static string balanceFile = "balance.txt";
         private static string historyFile = "history.txt";
 
@@ -15,12 +14,11 @@ namespace MiniBankApp
 
         static void Main(string[] args)
         {
-            LoadData(); // Загружаем данные из файлов при старте
+            LoadData();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             Console.WriteLine("=== Добро пожаловать в систему Т-Банк Старт ===");
             
-            // Простая имитация авторизации
             Console.Write("Введите номер аккаунта: ");
             Console.ReadLine();
             Console.Write("Введите ПИН-код: ");
@@ -54,7 +52,7 @@ namespace MiniBankApp
                         ShowHistory();
                         break;
                     case "5":
-                        SaveData(); // Сохраняем перед выходом
+                        SaveData();
                         Console.WriteLine("\nСпасибо за использование системы Т-Банк! До свидания.");
                         isRunning = false;
                         break;
@@ -106,6 +104,32 @@ namespace MiniBankApp
             }
         }
 
+        private static void ProcessTransfer()
+        {
+            Console.Write("\nВведите номер карты получателя: ");
+            string targetCard = Console.ReadLine();
+            Console.Write("Введите сумму перевода: ");
+            if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
+            {
+                if (amount <= balance)
+                {
+                    balance -= amount;
+                    string record = $"{DateTime.Now}: Перевод {amount} руб. на карту {targetCard}";
+                    history.Add(record);
+                    SaveData();
+                    Console.WriteLine($"\nПеревод успешно выполнен. Остаток: {balance} руб.\n");
+                }
+                else
+                {
+                    Console.WriteLine("\nОшибка: Недостаточно средств.\n");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nОшибка: Неверная сумма.\n");
+            }
+        }
+
         private static void ShowHistory()
         {
             Console.WriteLine("\n--- История ваших операций ---");
@@ -123,7 +147,6 @@ namespace MiniBankApp
             Console.WriteLine();
         }
 
-        // Логика работы с файлами
         private static void SaveData()
         {
             try
@@ -133,7 +156,7 @@ namespace MiniBankApp
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка сохранения данных: {ex.Message}");
+                Console.WriteLine($"Ошибка сохранения: {ex.Message}");
             }
         }
 
@@ -152,7 +175,7 @@ namespace MiniBankApp
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка загрузки данных: {ex.Message}");
+                Console.WriteLine($"Ошибка загрузки: {ex.Message}");
             }
         }
     }
